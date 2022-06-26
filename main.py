@@ -36,13 +36,18 @@ class Game:
 
     def pick_random_card(self):
         card_ids = list(self.invention_cards.keys())[1:]
-        while 1:
+        deck_has_cards = 0
+        for card_id in card_ids:
+            if self.invention_cards[card_id][0] == 1:
+                deck_has_cards = 1
+        while deck_has_cards:
             picked = randint(0, len(card_ids)-1)
             if self.invention_cards[card_ids[picked]][0] == 1:
                 self.invention_cards[card_ids[picked]][0] = 0
                 card = self.invention_cards[card_ids[picked]]
                 print(f"Picked {card_ids[picked]}: {card[1].ljust(30)} cost: {str(card[2]).rjust(2)}, WP: {card[3]}")
                 return [card_ids[picked], self.invention_cards[card_ids[picked]]]
+        print("Deck is empty! No card were picked this time.")
 
     def add_players(self, amount):
         for player in range(amount):
@@ -68,7 +73,7 @@ class Game:
         for player in self.players:
             if player.selected_action == 2:
                 print(f"{player.name} is constructing")
-                player.construct()
+                player.choose_card_to_construct()
 
     def research_stage(self):
         for player in self.players:
@@ -89,9 +94,12 @@ class Game:
     def end_round(self):
         for player in self.players:
             player.selected_action = 0
+            if player.win_points >= 20:
+                self.winner = player.name
 
     def start_game(self):
         while not self.winner:
+            print("""Game is starting! \n""")
             self.start_round()
             self.spy_stage()
             self.construct_stage()
@@ -99,6 +107,7 @@ class Game:
             self.work_stage()
             self.end_round()
             self.round_index = self.round_index + 1
+        print(f"{self.winner} has won the game!")
 
 
 class Player:
@@ -108,9 +117,11 @@ class Player:
         self.money = money
         self.pick_random_card = pick_card
         self.invention_cards = []
+        self.inventions = []
         self.get_invention_card(cards)
         self.win_points = 0
         self.selected_action = 0
+        self.selected_invention_card = 0
 
     def get_invention_card(self, amount):
         for i in range(amount):
@@ -131,8 +142,30 @@ class Player:
     def place_spy(self):
         input("Where you want to place a spy?\n 1 - Spy, 2 - Construct, 3 - Research, 4 - Work\n")
 
-    def construct(self):
-        input("What you want to construct?\n <cards will be displayed here>\n")
+    def choose_card_to_construct(self):
+        print(f"{self.name}, what do you want to construct?")
+        if self.invention_cards:
+            for index, card in enumerate(self.invention_cards):
+                print(f"Type '{index+1}' for: {card[1][1].ljust(30)} cost: {str(card[1][2]).rjust(2)}, WP: {card[1][3]}")
+            self.selected_invention_card = int(input("\n"))-1
+            self.construct(self.invention_cards[self.selected_invention_card])
+        else:
+            print(f"{self.name}, you don't have invention card and you lost this turn.")
+
+    def construct(self, card):
+        cost = card[1][2]
+        name = card[1][1]
+        wp = card[1][3]
+        if self.money >= cost:
+            print(f"Card {name} is constructed successfully!")
+            print(f"{self.name} earns {wp} win points!")
+            self.win_points = self.win_points + wp
+            self.change_money(-cost)
+            self.invention_cards.remove(card)
+            self.inventions.append(name)
+        else:
+            print(f"You don't have enough money and lose this round.")
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
