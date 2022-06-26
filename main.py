@@ -31,7 +31,7 @@ class Game:
         self.spy_income = 1
         self.round_index = 0
 
-        self.add_players(2)
+        self.add_players(players)
         self.start_game()
 
     def pick_random_card(self):
@@ -157,7 +157,7 @@ class Player:
         name = card[1][1]
         wp = card[1][3]
         if self.money >= cost:
-            print(f"Card {name} is constructed successfully!")
+            print(f"Card {name} was constructed successfully!")
             print(f"{self.name} earns {wp} win points!")
             self.win_points = self.win_points + wp
             self.change_money(-cost)
