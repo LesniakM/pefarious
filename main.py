@@ -29,6 +29,7 @@ class Game:
         self.research_income = 2
         self.research_cards = 1
         self.spy_income = 1
+        self.spy_cost = [0, 0, 2, 0, 1] # indexed with actions
         self.round_index = 0
 
         self.add_players(players)
@@ -54,11 +55,18 @@ class Game:
             name = input("Provide player name: ")
             self.players.append(Player(self, 10, 3, name, self.pick_random_card))
 
+    # used for calculating spy income
+    def get_nearest_players(self, index):
+        if len(self.players) <= 3:
+            return self.players[0:index]+self.players[index+1:]
+
+
     def start_round(self):
         print(f"\nRound {self.round_index} starts.")
         print("\n".join([f""
                          f"{player.name} has {player.money} gold coins, {player.win_points} win-points and "
-                         f"{len(player.invention_cards)} invention cards" for player in self.players]))
+                         f"{len(player.invention_cards)} invention cards\n"
+                         f"{player.name}'s spies sit like this {player.spies[1:5]}" for player in self.players]))
         for player in self.players:
             player.select_action()
         print()
@@ -68,6 +76,12 @@ class Game:
             if player.selected_action == 1:
                 print(f"{player.name} is spying")
                 player.place_spy()
+
+    def spy_income_stage(self):
+        for index, player in enumerate(self.players):
+            nearest_actions = [p.selected_action for p in self.get_nearest_players(index)]
+            income = player.gather_spy_income(nearest_actions)
+            print(f"{player.name} earned {income} gold coins from spies")
 
     def construct_stage(self):
         for player in self.players:
@@ -94,14 +108,16 @@ class Game:
     def end_round(self):
         for player in self.players:
             player.selected_action = 0
+            player.selected_spy_place = 0
             if player.win_points >= 20:
                 self.winner = player.name
 
     def start_game(self):
+        print("""Game is starting! \n""")
         while not self.winner:
-            print("""Game is starting! \n""")
             self.start_round()
             self.spy_stage()
+            self.spy_income_stage()
             self.construct_stage()
             self.research_stage()
             self.work_stage()
@@ -120,8 +136,10 @@ class Player:
         self.inventions = []
         self.get_invention_card(cards)
         self.win_points = 0
+        self.spies = [5, 0, 0, 0, 0] # first value represents number of spies remaining
         self.selected_action = 0
         self.selected_invention_card = 0
+        self.selected_spy_place = 0
 
     def get_invention_card(self, amount):
         for i in range(amount):
@@ -140,7 +158,29 @@ class Player:
             self.money = 0
 
     def place_spy(self):
-        input("Where you want to place a spy?\n 1 - Spy, 2 - Construct, 3 - Research, 4 - Work\n")
+        if self.spies[0] > 0:
+            while self.selected_spy_place == 0:
+                a = input(f"{self.name}, where do you want to place a spy?\n 1 - Spy, 2 - Construct, 3 - Research, 4 - Work\n")
+                if 1 <= int(a) <= 4:
+                    self.selected_spy_place = int(a)
+                    if self.money >= self.game.spy_cost[self.selected_spy_place]:
+                        self.spies[self.selected_spy_place] += 1
+                        self.spies[0] -= 1
+                        print(f"{self.name} placed a spy.")
+                    else:
+                        print(f"{self.name} You don't have enough money and lose this round.")
+                    break
+        else:
+            print(f"{self.name}, you don't have any remaining spies and you lost this turn.")
+
+    def gather_spy_income(self, nearest_actions):
+        income = 0
+        for action in nearest_actions:
+            income += self.game.spy_income*self.spies[action]
+            if self.selected_spy_place == 1 and action == 1:
+                income -= self.game.spy_income*self.spies[1]
+        self.change_money(income)
+        return income
 
     def choose_card_to_construct(self):
         print(f"{self.name}, what do you want to construct?")
