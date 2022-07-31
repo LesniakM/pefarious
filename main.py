@@ -60,13 +60,12 @@ class Game:
         if len(self.players) <= 3:
             return self.players[0:index]+self.players[index+1:]
 
-
     def start_round(self):
         print(f"\nRound {self.round_index} starts.")
         print("\n".join([f""
                          f"{player.name} has {player.money} gold coins, {player.win_points} win-points and "
                          f"{len(player.invention_cards)} invention cards\n"
-                         f"{player.name}'s spies sit like this {player.spies[1:5]}" for player in self.players]))
+                         f"{player.name}'s spies sit like this {player.spies[1:5]}\n" for player in self.players]))
         for player in self.players:
             player.select_action()
         print()
@@ -166,6 +165,7 @@ class Player:
                     if self.money >= self.game.spy_cost[self.selected_spy_place]:
                         self.spies[self.selected_spy_place] += 1
                         self.spies[0] -= 1
+                        self.money -= self.game.spy_cost[self.selected_spy_place]
                         print(f"{self.name} placed a spy.")
                     else:
                         print(f"{self.name} You don't have enough money and lose this round.")
