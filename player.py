@@ -16,6 +16,12 @@ class Player:
     def get_invention_card(self, amount):
         for i in range(amount):
             self.invention_cards.append(self.pick_random_card())
+        print(f"{self.name} got {amount} cards")
+
+    def change_money(self, amount):
+        self.money = self.money + amount
+        if self.money < 0:
+            self.money = 0
 
     def select_action(self):
         while self.selected_action == 0:
@@ -23,11 +29,6 @@ class Player:
             if 1 <= int(a) <= 4:
                 self.selected_action = int(a)
                 break
-
-    def change_money(self, amount):
-        self.money = self.money + amount
-        if self.money < 0:
-            self.money = 0
 
     def place_spy(self):
         if self.spies[0] > 0:
@@ -80,4 +81,35 @@ class Player:
             print(f"You don't have enough money and lose this round.")
 
 
-# class Bot(Player):
+class Bot(Player):
+    '''Proof of concept only
+        Player needs some refactoring to do it properly
+        Abstract away from Player methods for: money checks, try/check spy placement
+        Bot is able to construct fake card !!
+    '''
+    def __init__(self, g, name):
+        super().__init__(g, f"{name} Bot")
+
+    def select_action(self):
+        self.selected_action = self.game.round_index % 4 + 1
+        print(f"{self.name} selected action {self.selected_action}")
+    
+    def place_spy(self):
+        if self.spies[0] > 0:
+            # work in progress
+            # section below must be checked for money !!
+            self.selected_spy_place = 2
+
+            # duplicate from Player
+            self.spies[self.selected_spy_place] += 1
+            self.spies[0] -= 1
+            self.money -= self.game.spy_cost[self.selected_spy_place]
+
+            print(f"{self.name} selected spy place at {self.selected_action}")
+
+    def choose_card_to_construct(self):
+        print(f"{self.name} is constructing...")
+        if len(self.invention_cards) > 0:
+            cheapest = sorted(self.invention_cards, key=lambda c: c[1][2])[0]
+            if cheapest[1][2] <= self.money:
+                self.construct(cheapest)

@@ -1,6 +1,6 @@
 from random import randint
 
-from player import Player
+from player import Player, Bot
 
 class Game:
     def __init__(self, players):
@@ -57,6 +57,10 @@ class Game:
         for player in range(amount):
             name = input("Provide player name: ")
             self.players.append(Player(self, name))
+
+    def add_bots(self, amount):
+        for player in range(amount):
+            self.players.append(Bot(self, "#1"))
 
     # used for calculating spy income
     def get_nearest_players(self, index):
