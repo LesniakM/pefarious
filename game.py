@@ -13,10 +13,10 @@ class Game:
         self.research_income = 2
         self.research_cards = 1
         self.spy_income = 1
-        self.spy_cost = ["_", 0, 2, 0, 1]  # indexed with actions
+        self.spy_cost = ("_", 0, 2, 0, 1)  # indexed with actions
         self.start_money = 10
         self.start_cards = 3
-        self.points_to_win = 20       
+        self.points_to_win = 20
         self.round_index = 0
         self.add_players(players)
         self.start_game()
@@ -36,7 +36,7 @@ class Game:
     # used for calculating spy income
     def get_nearest_players(self, index: int) -> list[Player]:
         if len(self.players) <= 3:
-            return self.players[0:index]+self.players[index+1:]
+            return self.players[0:index] + self.players[index + 1:]
 
     def start_round(self) -> None:
         print(f"\nRound {self.round_index} starts.")
@@ -89,9 +89,21 @@ class Game:
             if player.win_points >= self.points_to_win:
                 self.winner = player.name
 
+    def data_validation(self) -> None:
+        """
+        This method will check if there's any illegal value in game/player data.
+        It's mainly for bug highlighting.
+        """
+        for player in self.players:
+            assert sum([spy for spy in player.spies]) == 5, f"Illegal total spy amount! {player}: {player.spies}"
+            assert sum([0 <= spy <= 5 for spy in player.spies]) == 5, f"Illegal spies! {player}: {player.spies}"
+            assert player.money >= 0, f"Negative amount of cash! {player}: {player.money}"
+            assert player.win_points >= 0, f"Negative amount of win points! {player}: {player.win_points}"
+
     def start_game(self):
         print("""Game is starting! \n""")
         while not self.winner:
+            self.data_validation()
             self.start_round()
             self.spy_stage()
             self.spy_income_stage()
