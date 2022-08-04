@@ -1,7 +1,6 @@
-from player import Player
-
-
 # ID : (AVAILABILITY, NAME, COST, WIN POINTS, (EFFECT1), (EFFECT2))
+
+
 invention_cards_data = {00: [0, "N", "C", "WP", ("TARGET", "TYPE", "AMOUNT"), ("TARGET", "TYPE", "AMOUNT")],
                         12: [1, "Uzależniająca gra", 0, 1, ("player", "cash", 4)],
                         13: [1, "Cybernetyczne zwierzątko", 0, 1, ("player", "card", 1, "cash", 2)],
@@ -28,11 +27,11 @@ class Card:
         self.id = card_id
         self.name = name
         self.cost = cost
-        self.win_points = win_points
+        self.wp = win_points
         self.effect_1 = effect_1
         self.effect_2 = effect_2
 
-    def execute_effects(self, player: Player, enemies: list[Player]) -> None:
+    def execute_effects(self, player: object, enemies: list[object]) -> None:
         if self.effect_1:
             pass
         if self.effect_2:

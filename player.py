@@ -1,9 +1,11 @@
+from cards import Card
+
+
 class Player:
-    def __init__(self, g, name):
+    def __init__(self, g, name: str):
         self.game = g
         self.name = name
         self.money = g.start_money
-        self.pick_random_card = g.pick_random_card
         self.invention_cards = []
         self.inventions = []
         self.get_invention_card(g.start_cards)
@@ -13,12 +15,11 @@ class Player:
         self.selected_invention_card = 0
         self.selected_spy_place = 0
 
-    def get_invention_card(self, amount):
+    def get_invention_card(self, amount: int) -> None:
         for i in range(amount):
-            self.invention_cards.append(self.pick_random_card())
-        print(f"{self.name} got {amount} cards")
+            self.invention_cards.append(self.game.pick_card())
 
-    def change_money(self, amount):
+    def change_money(self, amount: int):
         self.money = self.money + amount
         if self.money < 0:
             self.money = 0
@@ -60,25 +61,28 @@ class Player:
         print(f"{self.name}, what do you want to construct?")
         if self.invention_cards:
             for index, card in enumerate(self.invention_cards):
-                print(f"Type '{index+1}' for: {card[1][1].ljust(30)} cost: {str(card[1][2]).rjust(2)}, WP: {card[1][3]}")
+                print(f"Type '{index+1}' for: {card.name.ljust(30)} cost: {str(card.cost).rjust(2)}, WP: {card.wp}")
             self.selected_invention_card = int(input("\n"))-1
             self.construct(self.invention_cards[self.selected_invention_card])
         else:
             print(f"{self.name}, you don't have invention card and you lost this turn.")
 
-    def construct(self, card):
-        cost = card[1][2]
-        name = card[1][1]
-        wp = card[1][3]
+    def construct(self, card: Card):
+        cost = card.cost
+        name = card.name
+        wp = card.wp
         if self.money >= cost:
             print(f"Card {name} was constructed successfully!")
             print(f"{self.name} earns {wp} win points!")
-            self.win_points = self.win_points + wp
             self.change_money(-cost)
+            self.inventions.append(card)
             self.invention_cards.remove(card)
-            self.inventions.append(name)
+            self.update_win_points()
         else:
             print(f"You don't have enough money and lose this round.")
+
+    def update_win_points(self):
+        self.win_points = sum([card.wp for card in self.inventions])
 
 
 class Bot(Player):

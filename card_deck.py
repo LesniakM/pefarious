@@ -10,6 +10,7 @@ class CardDeck:
 
         # Make cards and shuffle them. GC will delete card_objs list after CardDeck init.
         card_objs = [card_parser(card_id, invention_cards_data[card_id]) for card_id in invention_cards_data.keys()]
+        card_objs.pop(0)  # Remove template card
         shuffle(card_objs)
         for card in card_objs:
             self.card_stack.append(card)

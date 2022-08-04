@@ -1,13 +1,14 @@
 from random import randint
 from player import Player, Bot
-from cards import invention_cards_data
+from card_deck import CardDeck
+from cards import Card
 
 
 class Game:
-    def __init__(self, players):
+    def __init__(self, players: int):
         self.players = []
         self.winner = ""
-        self.invention_cards = invention_cards_data
+        self.card_deck = CardDeck()
         self.work_income = 4
         self.research_income = 2
         self.research_cards = 1
@@ -20,36 +21,24 @@ class Game:
         self.add_players(players)
         self.start_game()
 
-    def pick_random_card(self):
-        card_ids = list(self.invention_cards.keys())[1:]
-        deck_has_cards = 0
-        for card_id in card_ids:
-            if self.invention_cards[card_id][0] == 1:
-                deck_has_cards = 1
-        while deck_has_cards:
-            picked = randint(0, len(card_ids)-1)
-            if self.invention_cards[card_ids[picked]][0] == 1:
-                self.invention_cards[card_ids[picked]][0] = 0
-                card = self.invention_cards[card_ids[picked]]
-                print(f"Picked {card_ids[picked]}: {card[1].ljust(30)} cost: {str(card[2]).rjust(2)}, WP: {card[3]}")
-                return [card_ids[picked], self.invention_cards[card_ids[picked]]]
-        print("Deck is empty! No card were picked this time.")
+    def pick_card(self) -> Card:
+        return self.card_deck.get_card()
 
-    def add_players(self, amount):
+    def add_players(self, amount: int) -> None:
         for player in range(amount):
             name = input("Provide player name: ")
             self.players.append(Player(self, name))
 
-    def add_bots(self, amount):
+    def add_bots(self, amount: int) -> None:
         for player in range(amount):
             self.players.append(Bot(self, "#1"))
 
     # used for calculating spy income
-    def get_nearest_players(self, index):
+    def get_nearest_players(self, index: int) -> list[Player]:
         if len(self.players) <= 3:
             return self.players[0:index]+self.players[index+1:]
 
-    def start_round(self):
+    def start_round(self) -> None:
         print(f"\nRound {self.round_index} starts.")
         print("\n".join([f""
                          f"{player.name} has {player.money} gold coins, {player.win_points} win-points and "
@@ -59,7 +48,7 @@ class Game:
             player.select_action()
         print()
 
-    def spy_stage(self):
+    def spy_stage(self) -> None:
         for player in self.players:
             if player.selected_action == 1:
                 print(f"{player.name} is spying")
