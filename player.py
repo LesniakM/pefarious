@@ -40,7 +40,7 @@ class Player:
                     if self.money >= self.game.spy_cost[self.selected_spy_place]:
                         self.spies[self.selected_spy_place] += 1
                         self.spies[0] -= 1
-                        self.money -= self.game.spy_cost[self.selected_spy_place]
+                        self.change_money(-self.game.spy_cost[self.selected_spy_place])
                         print(f"{self.name} placed a spy.")
                     else:
                         print(f"{self.name} You don't have enough money and lose this round.")
@@ -92,14 +92,14 @@ class Bot(Player):
         Abstract away from Player methods for: money checks, try/check spy placement
         Bot is able to construct fake card !!
     """
-    def __init__(self, g, name):
+    def __init__(self, g, name: str):
         super().__init__(g, f"{name} Bot")
 
-    def select_action(self):
+    def select_action(self) -> None:
         self.selected_action = self.game.round_index % 4 + 1
         print(f"{self.name} selected action {self.selected_action}")
     
-    def place_spy(self):
+    def place_spy(self) -> None:
         if self.spies[0] > 0:
             # work in progress
             # section below must be checked for money !!
@@ -112,9 +112,9 @@ class Bot(Player):
 
             print(f"{self.name} selected spy place at {self.selected_action}")
 
-    def choose_card_to_construct(self):
+    def choose_card_to_construct(self) -> None:
         print(f"{self.name} is constructing...")
-        if len(self.invention_cards) > 0:
-            cheapest = sorted(self.invention_cards, key=lambda c: c[1][2])[0]
+        if self.invention_cards:
+            cheapest = sorted(self.invention_cards, key=lambda c: c.cost())[0]
             if cheapest[1][2] <= self.money:
                 self.construct(cheapest)
