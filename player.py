@@ -8,7 +8,7 @@ class Player:
         self.inventions = []
         self.get_invention_card(g.start_cards)
         self.win_points = 0
-        self.spies = [5, 0, 0, 0, 0] # first value represents number of spies remaining
+        self.spies = [5, 0, 0, 0, 0]  # first value represents number of spies remaining
         self.selected_action = 0
         self.selected_invention_card = 0
         self.selected_spy_place = 0
@@ -82,11 +82,12 @@ class Player:
 
 
 class Bot(Player):
-    '''Proof of concept only
+    """
+        Proof of concept only
         Player needs some refactoring to do it properly
         Abstract away from Player methods for: money checks, try/check spy placement
         Bot is able to construct fake card !!
-    '''
+    """
     def __init__(self, g, name):
         super().__init__(g, f"{name} Bot")
 
