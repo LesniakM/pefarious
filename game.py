@@ -52,7 +52,7 @@ class Game:
         for player in self.players:
             if player.selected_action == 1:
                 print(f"{player.name} is spying")
-                player.place_spy()
+                player.choose_place_for_spy()
 
     def spy_income_stage(self):
         for index, player in enumerate(self.players):
